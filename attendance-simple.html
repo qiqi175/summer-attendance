@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暑假培训班出勤统计表</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .header p {
+            color: #666;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        /* 学生姓名输入框 - 放在最上面 */
+        .student-name-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #fff3e0;
+            border-radius: 8px;
+            border: 1px solid #ffcc80;
+        }
+
+        .student-name-section .label {
+            display: block;
+            font-size: 14px;
+            color: #e65100;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .student-name-section input {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px 15px;
+            border: 1px solid #ffcc80;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        /* 二级联动下拉选择器 */
+        .cascading-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .selector-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .selector-label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .dropdown-wrapper {
+            position: relative;
+        }
+
+        .dropdown-trigger {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #fff;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .dropdown-trigger:hover {
+            border-color: #1976d2;
+        }
+
+        .dropdown-trigger.active {
+            border-color: #1976d2;
+            background-color: #f5f9ff;
+        }
+
+        .dropdown-arrow {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #666;
+            transition: transform 0.2s;
+        }
+
+        .dropdown-arrow.active {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-panel {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .dropdown-panel.active {
+            display: block;
+        }
+
+        .dropdown-option {
+            padding: 12px 15px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f5f9ff;
+        }
+
+        .dropdown-option.active {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            font-weight: 500;
+        }
+
+        .dropdown-option.group-title {
+            background-color: #f5f5f5;
+            font-weight: 500;
+            color: #666;
+            cursor: default;
+            padding: 10px 15px;
+        }
+
+        .dropdown-option.group-title:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 日期列表 */
+        .dates-section {
+            margin-bottom: 25px;
+        }
+
+        .selected-info {
+            padding: 15px 20px;
+            background-color: #fafafa;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .selected-info .title {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .selected-info strong {
+            color: #1976d2;
+        }
+
+        .selected-info .clear-btn {
+            padding: 6px 15px;
+            font-size: 13px;
+            color: #666;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .selected-info .clear-btn:hover {
+            border-color: #1976d2;
+            color: #1976d2;
+        }
+
+        .dates-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+
+        .date-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+
+        .date-row:hover {
+            background-color: #fafafa;
+        }
+
+        .date-row:last-child {
+            border-bottom: none;
+        }
+
+        .date-cell {
+            min-width: 100px;
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .status-options {
+            display: flex;
+            gap: 20px;
+            margin-left: auto;
+        }
+
+        .status-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.2s;
+            min-width: 110px;
+            justify-content: center;
+        }
+
+        .status-option:hover {
+            border-color: #ddd;
+            background-color: #fafafa;
+        }
+
+        .status-option.selected {
+            border-color: #1976d2;
+            background-color: #f5f9ff;
+        }
+
+        .status-option input[type="radio"] {
+            display: none;
+        }
+
+        .status-option .label {
+            font-size: 13px;
+            color: #555;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .status-option.attended .label {
+            color: #2e7d32;
+        }
+
+        .status-option.attended.selected {
+            border-color: #2e7d32;
+            background-color: #e8f5e9;
+        }
+
+        .status-option.absent .label {
+            color: #757575;
+        }
+
+        .status-option.absent.selected {
+            border-color: #757575;
+            background-color: #f5f5f5;
+        }
+
+        .status-option.makeup .label {
+            color: #f57c00;
+        }
+
+        .status-option.makeup.selected {
+            border-color: #f57c00;
+            background-color: #fff3e0;
+        }
+
+        /* 底部区域 */
+        .footer-panel {
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #1976d2;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #1565c0;
+        }
+
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        .empty-state {
+            padding: 80px 20px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 图片生成预览弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .image-preview {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn-success {
+            background-color: #2e7d32;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background-color: #27642d;
+        }
+
+        /* 用于生成图片的内容区域 */
+        .export-content {
+            display: none;
+        }
+
+        .export-card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .export-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .export-header h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .export-header .subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .export-student {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background-color: #fff3e0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .export-student .icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #ffb74d, #ff9800);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .export-student .info {
+            flex: 1;
+        }
+
+        .export-student .name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .export-student .date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .export-record-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 4px solid #1976d2;
+        }
+
+        .export-records {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .export-record {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .export-record:last-child {
+            border-bottom: none;
+        }
+
+        .export-record .date {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .export-record .status {
+            font-size: 13px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .export-record .status.attended {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .export-record .status.absent {
+            background-color: #f5f5f5;
+            color: #757575;
+        }
+
+        .export-record .status.makeup {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .cascading-selector {
+                flex-direction: column;
+            }
+
+            .status-options {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .status-option {
+                min-width: calc(50% - 5px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .selected-info {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .date-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .status-options {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .status-option {
+                min-width: 100%;
+            }
+
+            .modal-content {
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 学生姓名输入框 - 放在最顶部 -->
+        <div class="student-name-section">
+            <label class="label">👦 学生姓名</label>
+            <input type="text" id="studentName" placeholder="请输入学生姓名">
+        </div>
+
+        <!-- 头部 -->
+        <div class="header">
+            <h1>📝 暑假培训班出勤统计表</h1>
+            <p>2024年7月 - 8月 | 请选择时段后填写出勤状态</p>
+        </div>
+
+        <!-- 日期列表区域 -->
+        <div class="dates-section">
+            <div class="selected-info">
+                <div class="title">
+                    当前选择：<strong id="selectedSlot">请选择时段</strong>
+                </div>
+                <button class="clear-btn" id="clearSelection" style="display: none;" onclick="clearCurrentSelection()">清除选择</button>
+            </div>
+            
+            <div class="dates-container" id="datesContainer">
+                <div class="empty-state">
+                    <div>📅</div>
+                    <p>请先选择星期和时段</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 二级联动下拉选择器 -->
+        <div class="cascading-selector">
+            <div class="selector-group">
+                <label class="selector-label">选择星期</label>
+                <div class="dropdown-wrapper">
+                    <div class="dropdown-trigger" id="dayDropdown">
+                        <span id="selectedDayText">请选择星期</span>
+                        <span class="dropdown-arrow" id="dayArrow"></span>
+                    </div>
+                    <div class="dropdown-panel" id="dayPanel">
+                        <div class="dropdown-option group-title">📅 工作日</div>
+                        <div class="dropdown-option" data-day="wednesday">周三</div>
+                        <div class="dropdown-option" data-day="thursday">周四</div>
+                        <div class="dropdown-option" data-day="friday">周五</div>
+                        <div class="dropdown-option group-title">🌞 周末</div>
+                        <div class="dropdown-option" data-day="saturday">周六</div>
+                        <div class="dropdown-option" data-day="sunday">周日</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="selector-group">
+                <label class="selector-label">选择时段</label>
+                <div class="dropdown-wrapper">
+                    <div class="dropdown-trigger" id="slotDropdown">
+                        <span id="selectedSlotText">请先选择星期</span>
+                        <span class="dropdown-arrow" id="slotArrow"></span>
+                    </div>
+                    <div class="dropdown-panel" id="slotPanel">
+                        <div class="empty-state" style="padding: 20px;">
+                            <p>请先选择星期</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部：汇总 -->
+        <div class="footer-panel">
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="resetForm()">重置表单</button>
+                <button class="btn btn-primary" onclick="submitForm()">提交出勤记录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片预览弹窗 -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📷 出勤记录图片</h3>
+                <button class="modal-close" onclick="closeImageModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="image-preview" id="imagePreview">
+                    <img id="previewImage" src="" alt="出勤记录">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeImageModal()">关闭</button>
+                    <button class="btn btn-success" id="downloadBtn">📥 保存图片</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用于生成图片的内容区域 -->
+    <div class="export-content" id="exportContent">
+        <div class="export-card">
+            <div class="export-header">
+                <h2>📝 暑假出勤统计表</h2>
+                <div class="subtitle">2024年7月 - 8月</div>
+            </div>
+            <div class="export-student">
+                <div class="icon">👦</div>
+                <div class="info">
+                    <div class="name" id="exportStudentName">学生姓名</div>
+                    <div class="date" id="exportSubmitDate">提交日期：2024年7月1日</div>
+                </div>
+            </div>
+            <div class="export-record-title">📅 出勤记录</div>
+            <div class="export-records" id="exportRecords">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 时段配置
+        const timeSlotsConfig = {
+            wednesday: ['16:30-18:00', '18:30-20:00'],
+            thursday: ['16:30-18:00', '18:30-20:00'],
+            friday: ['16:30-18:00', '18:30-20:00'],
+            saturday: ['09:00-10:30', '10:45-12:15', '13:00-14:30', '14:45-16:15', '16:30-18:00', '18:30-20:00'],
+            sunday: ['09:00-10:30', '10:45-12:15', '13:00-14:30', '14:45-16:15', '16:30-18:00', '18:30-20:00']
+        };
+
+        // 日期映射
+        const dayMapping = {
+            wednesday: 3,
+            thursday: 4,
+            friday: 5,
+            saturday: 6,
+            sunday: 0
+        };
+
+        const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+        // 全局变量
+        let selectedDay = null;
+        let selectedSlot = null;
+        let attendanceRecords = {};
+        let currentExportImage = null;
+
+        // 生成暑假日期列表
+        function generateSummerDates(dayOfWeek) {
+            const dates = [];
+            const startDate = new Date(2024, 6, 1); // 7月1日
+            const endDate = new Date(2024, 7, 31); // 8月31日
+            
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                if (currentDate.getDay() === dayOfWeek) {
+                    dates.push(new Date(currentDate));
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return dates;
+        }
+
+        // 格式化日期
+        function formatDate(date) {
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${month}月${day}日`;
+        }
+
+        // 渲染时段下拉
+        function renderTimeSlots() {
+            const slotPanel = document.getElementById('slotPanel');
+            
+            if (!selectedDay) {
+                slotPanel.innerHTML = '<div class="empty-state" style="padding: 20px;"><p>请先选择星期</p></div>';
+                document.getElementById('selectedSlotText').textContent = '请先选择星期';
+                document.getElementById('slotDropdown').classList.remove('active');
+                selectedSlot = null;
+                return;
+            }
+            
+            const slots = timeSlotsConfig[selectedDay] || [];
+            const dayName = dayNames[dayMapping[selectedDay]];
+            
+            slotPanel.innerHTML = slots.map(slot => {
+                const isSelected = selectedSlot === slot;
+                return `<div class="dropdown-option ${isSelected ? 'active' : ''}" data-slot="${slot}">${slot}</div>`;
+            }).join('');
+            
+            // 添加点击事件
+            slotPanel.querySelectorAll('.dropdown-option').forEach(option => {
+                option.addEventListener('click', handleSlotSelect);
+            });
+            
+            if (selectedSlot) {
+                document.getElementById('selectedSlotText').textContent = selectedSlot;
+            } else {
+                document.getElementById('selectedSlotText').textContent = `选择${dayName}时段`;
+            }
+        }
+
+        // 星期选择处理
+        function handleDaySelect(e) {
+            const day = e.target.dataset.day;
+            if (!day) return;
+            
+            // 更新选中状态
+            document.querySelectorAll('#dayPanel .dropdown-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            e.target.classList.add('active');
+            
+            selectedDay = day;
+            selectedSlot = null;
+            
+            // 更新显示
+            const dayName = dayNames[dayMapping[day]];
+            document.getElementById('selectedDayText').textContent = dayName;
+            
+            // 更新时段下拉
+            renderTimeSlots();
+            
+            // 关闭星期下拉
+            closeDropdown('day');
+            
+            // 更新选中信息和日期列表
+            updateSelectedInfo();
+            renderDates();
+        }
+
+        // 时段选择处理
+        function handleSlotSelect(e) {
+            const slot = e.target.dataset.slot;
+            if (!slot) return;
+            
+            // 更新选中状态
+            document.querySelectorAll('#slotPanel .dropdown-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            e.target.classList.add('active');
+            
+            selectedSlot = slot;
+            
+            // 更新显示
+            document.getElementById('selectedSlotText').textContent = slot;
+            
+            // 关闭时段下拉
+            closeDropdown('slot');
+            
+            // 更新选中信息和日期列表
+            updateSelectedInfo();
+            renderDates();
+        }
+
+        // 更新选中信息
+        function updateSelectedInfo() {
+            if (selectedDay && selectedSlot) {
+                const dayName = dayNames[dayMapping[selectedDay]];
+                document.getElementById('selectedSlot').textContent = `${dayName} ${selectedSlot}`;
+                document.getElementById('clearSelection').style.display = 'block';
+            } else {
+                document.getElementById('selectedSlot').textContent = '请选择时段';
+                document.getElementById('clearSelection').style.display = 'none';
+            }
+        }
+
+        // 渲染日期列表
+        function renderDates() {
+            const container = document.getElementById('datesContainer');
+            
+            if (!selectedDay || !selectedSlot) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>📅</div>
+                        <p>请先选择星期和时段</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const dayOfWeek = dayMapping[selectedDay];
+            const dates = generateSummerDates(dayOfWeek);
+            
+            if (dates.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>📅</div>
+                        <p>该时段暂无上课日期</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 生成唯一key
+            const slotKey = `${selectedDay}-${selectedSlot}`;
+            if (!attendanceRecords[slotKey]) {
+                attendanceRecords[slotKey] = {};
+            }
+            
+            container.innerHTML = dates.map(date => {
+                const dateStr = formatDate(date);
+                const recordKey = `${slotKey}-${dateStr}`;
+                const status = attendanceRecords[slotKey][dateStr] || '';
+                
+                return `
+                    <div class="date-row">
+                        <div class="date-cell">${dateStr}</div>
+                        <div class="status-options">
+                            <label class="status-option attended ${status === 'attended' ? 'selected' : ''}">
+                                <input type="radio" name="${recordKey}" value="attended" ${status === 'attended' ? 'checked' : ''}>
+                                <span class="label">正常出勤</span>
+                            </label>
+                            <label class="status-option absent ${status === 'absent' ? 'selected' : ''}">
+                                <input type="radio" name="${recordKey}" value="absent" ${status === 'absent' ? 'checked' : ''}>
+                                <span class="label">不出勤不补课</span>
+                            </label>
+                            <label class="status-option makeup ${status === 'makeup' ? 'selected' : ''}">
+                                <input type="radio" name="${recordKey}" value="makeup" ${status === 'makeup' ? 'checked' : ''}>
+                                <span class="label">不出勤需补课</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // 添加单选按钮事件
+            container.querySelectorAll('.status-option').forEach(option => {
+                option.addEventListener('click', handleStatusClick);
+            });
+        }
+
+        // 状态点击处理
+        function handleStatusClick(e) {
+            const label = e.currentTarget;
+            const radio = label.querySelector('input[type="radio"]');
+            const slotKey = `${selectedDay}-${selectedSlot}`;
+            const dateStr = label.closest('.date-row').querySelector('.date-cell').textContent;
+            const status = radio.value;
+            
+            // 更新选中样式
+            label.closest('.status-options').querySelectorAll('.status-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            label.classList.add('selected');
+            
+            // 更新记录
+            if (!attendanceRecords[slotKey]) {
+                attendanceRecords[slotKey] = {};
+            }
+            attendanceRecords[slotKey][dateStr] = status;
+        }
+
+        // 清除当前选择
+        function clearCurrentSelection() {
+            if (!selectedDay || !selectedSlot) return;
+            
+            const slotKey = `${selectedDay}-${selectedSlot}`;
+            if (attendanceRecords[slotKey]) {
+                delete attendanceRecords[slotKey];
+            }
+            
+            selectedSlot = null;
+            document.getElementById('selectedSlotText').textContent = `选择${dayNames[dayMapping[selectedDay]]}时段`;
+            
+            updateSelectedInfo();
+            renderDates();
+        }
+
+        // 打开下拉
+        function openDropdown(type) {
+            closeDropdown('day');
+            closeDropdown('slot');
+            
+            const panel = document.getElementById(`${type}Panel`);
+            const arrow = document.getElementById(`${type}Arrow`);
+            const dropdown = document.getElementById(`${type}Dropdown`);
+            
+            panel.classList.add('active');
+            arrow.classList.add('active');
+            dropdown.classList.add('active');
+        }
+
+        // 关闭下拉
+        function closeDropdown(type) {
+            const panel = document.getElementById(`${type}Panel`);
+            const arrow = document.getElementById(`${type}Arrow`);
+            const dropdown = document.getElementById(`${type}Dropdown`);
+            
+            panel.classList.remove('active');
+            arrow.classList.remove('active');
+            dropdown.classList.remove('active');
+        }
+
+        // 重置表单
+        function resetForm() {
+            if (confirm('确定要重置所有出勤记录吗？')) {
+                attendanceRecords = {};
+                selectedDay = null;
+                selectedSlot = null;
+                
+                // 重置下拉选择器
+                document.querySelectorAll('.dropdown-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                document.getElementById('selectedDayText').textContent = '请选择星期';
+                document.getElementById('selectedSlotText').textContent = '请先选择星期';
+                document.getElementById('selectedSlot').textContent = '请选择时段';
+                document.getElementById('clearSelection').style.display = 'none';
+                
+                // 重置日期列表
+                document.getElementById('datesContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div>📅</div>
+                        <p>请先选择星期和时段</p>
+                    </div>
+                `;
+                
+                // 重置学生姓名
+                document.getElementById('studentName').value = '';
+            }
+        }
+
+        // 准备导出内容
+        function prepareExportContent(studentName) {
+            // 更新学生姓名
+            document.getElementById('exportStudentName').textContent = studentName;
+            
+            // 更新日期
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+            document.getElementById('exportSubmitDate').textContent = `提交日期：${dateStr}`;
+            
+            // 生成出勤记录列表
+            let recordsHtml = '';
+            
+            // 整理所有记录
+            const allRecords = [];
+            
+            Object.keys(attendanceRecords).forEach(slotKey => {
+                const [day, slot] = slotKey.split('-');
+                const dayName = dayNames[dayMapping[day]];
+                
+                Object.keys(attendanceRecords[slotKey]).forEach(date => {
+                    const status = attendanceRecords[slotKey][date];
+                    allRecords.push({
+                        date: `${date} (${dayName} ${slot})`,
+                        status: status
+                    });
+                });
+            });
+            
+            // 按日期排序
+            allRecords.sort((a, b) => {
+                return a.date.localeCompare(b.date, 'zh-CN', { numeric: true });
+            });
+            
+            // 生成HTML
+            if (allRecords.length === 0) {
+                recordsHtml = '<div style="text-align: center; padding: 20px; color: #999;">暂无出勤记录</div>';
+            } else {
+                recordsHtml = allRecords.map(record => `
+                    <div class="export-record">
+                        <span class="date">${record.date}</span>
+                        <span class="status ${record.status}">${record.status === 'attended' ? '出勤' : record.status === 'absent' ? '不出勤' : record.status === 'makeup' ? '需补课' : '请假'}</span>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('exportRecords').innerHTML = recordsHtml;
+        }
+
+        // 生成图片
+        async function generateImage() {
+            const exportContent = document.getElementById('exportContent');
+            exportContent.style.display = 'block';
+            
+            try {
+                const canvas = await html2canvas(exportContent, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    useCORS: true,
+                    logging: false
+                });
+                
+                currentExportImage = canvas.toDataURL('image/png');
+                document.getElementById('previewImage').src = currentExportImage;
+                document.getElementById('imageModal').classList.add('active');
+            } catch (error) {
+                console.error('生成图片失败:', error);
+                alert('生成图片失败，请重试');
+            } finally {
+                exportContent.style.display = 'none';
+            }
+        }
+
+        // 关闭图片弹窗
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.remove('active');
+            currentExportImage = null;
+        }
+
+        // 下载图片
+        function downloadImage() {
+            if (!currentExportImage) return;
+            
+            const link = document.createElement('a');
+            link.href = currentExportImage;
+            const studentName = document.getElementById('studentName').value.trim() || '学生';
+            link.download = `${studentName}_暑假出勤记录.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 提交表单
+        function submitForm() {
+            const studentName = document.getElementById('studentName').value.trim();
+            
+            if (!studentName) {
+                alert('请输入学生姓名');
+                return;
+            }
+            
+            // 检查是否有出勤记录
+            let hasRecords = false;
+            Object.values(attendanceRecords).forEach(slotRecords => {
+                if (Object.keys(slotRecords).length > 0) {
+                    hasRecords = true;
+                }
+            });
+            
+            if (!hasRecords) {
+                alert('请至少选择一个出勤状态');
+                return;
+            }
+            
+            // 准备导出内容并生成图片
+            prepareExportContent(studentName);
+            generateImage();
+            
+            // 创建提交数据
+            const data = {
+                studentName,
+                records: attendanceRecords,
+                submitTime: new Date().toISOString()
+            };
+            
+            // 保存到localStorage
+            const allData = JSON.parse(localStorage.getItem('summerAttendance') || '[]');
+            allData.push(data);
+            localStorage.setItem('summerAttendance', JSON.stringify(allData));
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 星期下拉事件
+            document.getElementById('dayDropdown').addEventListener('click', () => {
+                openDropdown('day');
+            });
+            
+            // 时段下拉事件
+            document.getElementById('slotDropdown').addEventListener('click', () => {
+                if (selectedDay) {
+                    openDropdown('slot');
+                }
+            });
+            
+            // 星期选项点击事件
+            document.querySelectorAll('#dayPanel .dropdown-option').forEach(option => {
+                if (!option.classList.contains('group-title')) {
+                    option.addEventListener('click', handleDaySelect);
+                }
+            });
+            
+            // 点击外部关闭下拉
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown-wrapper')) {
+                    closeDropdown('day');
+                    closeDropdown('slot');
+                }
+            });
+            
+            // 下载按钮事件
+            document.getElementById('downloadBtn').addEventListener('click', downloadImage);
+            
+            // 点击弹窗外部关闭
+            document.getElementById('imageModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('imageModal')) {
+                    closeImageModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
